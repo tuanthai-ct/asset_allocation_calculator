@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý phân bổ vốn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e27;
+            color: #ffffff;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 226, 0.15) 0%, transparent 50%);
+            background-attachment: fixed;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(13, 17, 43, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(30, 35, 70, 0.8);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+            color: #8b8b8b;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: rgba(30, 35, 70, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .asset-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .asset-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .asset-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .param-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .param-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .param-group label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #8b8b8b;
+            font-size: 0.9rem;
+        }
+
+        .param-group input {
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .param-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .button {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .results {
+            background: rgba(30, 35, 70, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .results h3 {
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .allocation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .allocation-bar {
+            width: 200px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+
+        .allocation-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .metric-value.green { color: #22c55e; }
+        .metric-value.blue { color: #3b82f6; }
+        .metric-value.purple { color: #8b5cf6; }
+
+        .metric-label {
+            color: #8b8b8b;
+            font-size: 0.9rem;
+        }
+
+        .correlation-matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .correlation-cell {
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .correlation-header {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .correlation-value {
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .param-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .allocation-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .allocation-bar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Quản lý phân bổ vốn</h1>
+            <p>Tối ưu hóa danh mục đầu tư của bạn với công cụ phân tích tài sản chuyên nghiệp</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>📊 Cấu Hình Tài Sản</h2>
+                
+                <div class="asset-card">
+                    <div class="asset-header">
+                        <div class="asset-name">📈 Cổ Phiếu</div>
+                    </div>
+                    <div class="param-grid">
+                        <div class="param-group">
+                            <label>Tỉ lệ tăng trưởng tốt nhất (%)</label>
+                            <input type="number" id="stock-best" value="50" step="5" min="-100">
+                        </div>
+                        <div class="param-group">
+                            <label>Tỉ lệ tăng trưởng xấu nhất (%)</label>
+                            <input type="number" id="stock-worst" value="-50" step="5" min="-100">
+                        </div>
+                        <div class="param-group">
+                            <label>Tỉ trọng tối thiểu (%)</label>
+                            <input type="number" id="stock-min" value="0" step="5" min="0" max="100">
+                        </div>
+                        <div class="param-group">
+                            <label>Tỉ trọng tối đa (%)</label>
+                            <input type="number" id="stock-max" value="70" step="5" min="0" max="100">
+                        </div>
+                        <div class="param-group">
+                            <label>Tương quan với Cổ phiếu</label>
+                            <input type="number" id="stock-corr-stock" value="1" step="0.01" min="-1" max="1" readonly>
+                        </div>
+                        <div class="param-group">
+                            <label>Tương quan với Tiền mặt</label>
+                            <input type="number" id="stock-corr-cash" value="0" step="0.01" min="-1" max="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="asset-card">
+                    <div class="asset-header">
+                        <div class="asset-name">💰 Tiền Mặt</div>
+                    </div>
+                    <div class="param-grid">
+                        <div class="param-group">
+                            <label>Tỉ lệ tăng trưởng tốt nhất (%)</label>
+                            <input type="number" id="cash-best" value="5" step="0.01">
+                        </div>
+                        <div class="param-group">
+                            <label>Tỉ lệ tăng trưởng xấu nhất (%)</label>
+                            <input type="number" id="cash-worst" value="5" step="0.01">
+                        </div>
+                        <div class="param-group">
+                            <label>Tỉ trọng tối thiểu (%)</label>
+                            <input type="number" id="cash-min" value="30" step="5" min="0" max="100">
+                        </div>
+                        <div class="param-group">
+                            <label>Tỉ trọng tối đa (%)</label>
+                            <input type="number" id="cash-max" value="100" step="5" min="0" max="100">
+                        </div>
+                        <div class="param-group">
+                            <label>Tương quan với Cổ phiếu</label>
+                            <input type="number" id="cash-corr-stock" value="0" step="5" min="-1" max="1">
+                        </div>
+                        <div class="param-group">
+                            <label>Tương quan với Tiền mặt</label>
+                            <input type="number" id="cash-corr-cash" value="1" step="0.01" min="-1" max="1" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="button" onclick="calculateOptimalAllocation()">🔍 Tính Toán Phân Bổ Tối Ưu</button>
+            </div>
+
+            <div class="section">
+                <h2>📈 Ma Trận Tương Quan</h2>
+                <div class="correlation-matrix">
+                    <div class="correlation-cell correlation-header"></div>
+                    <div class="correlation-cell correlation-header">Cổ phiếu</div>
+                    <div class="correlation-cell correlation-header">Tiền mặt</div>
+                    <div class="correlation-cell correlation-header">Cổ phiếu</div>
+                    <div class="correlation-cell correlation-value" id="corr-stock-stock">1</div>
+                    <div class="correlation-cell correlation-value" id="corr-stock-cash">0</div>
+                    <div class="correlation-cell correlation-header">Tiền mặt</div>
+                    <div class="correlation-cell correlation-value" id="corr-cash-stock">0</div>
+                    <div class="correlation-cell correlation-value" id="corr-cash-cash">1</div>
+                </div>
+            </div>
+
+            <div class="results" id="results" style="display: none;">
+                <h3>🎯 Kết Quả Phân Bổ Tối Ưu</h3>
+                
+                <div id="allocation-display"></div>
+                
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <div class="metric-value green" id="expected-return">-</div>
+                        <div class="metric-label">Lợi nhuận kỳ vọng (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value purple" id="portfolio-risk">-</div>
+                        <div class="metric-label">Rủi ro danh mục (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value blue" id="sharpe-ratio">-</div>
+                        <div class="metric-label">Tỉ số Sharpe</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value blue" id="diversification">-</div>
+                        <div class="metric-label">Mức đa dạng hóa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cập nhật ma trận tương quan khi thay đổi input
+        function updateCorrelationMatrix() {
+            const stockCorrCash = parseFloat(document.getElementById('stock-corr-cash').value);
+            const cashCorrStock = parseFloat(document.getElementById('cash-corr-stock').value);
+            
+            document.getElementById('corr-stock-cash').textContent = stockCorrCash.toFixed(2);
+            document.getElementById('corr-cash-stock').textContent = cashCorrStock.toFixed(2);
+            
+            // Đảm bảo tính đối xứng của ma trận tương quan
+            if (stockCorrCash !== cashCorrStock) {
+                document.getElementById('cash-corr-stock').value = stockCorrCash;
+                document.getElementById('corr-cash-stock').textContent = stockCorrCash.toFixed(2);
+            }
+        }
+
+        // Thêm event listeners cho các input tương quan
+        document.getElementById('stock-corr-cash').addEventListener('input', updateCorrelationMatrix);
+        document.getElementById('cash-corr-stock').addEventListener('input', updateCorrelationMatrix);
+
+        /**
+         * Calculates optimal asset allocation to maximize expected return
+         * @param {Array} assets - Array of asset objects with name, bestGrowth, worstGrowth, minWeight, maxWeight, correlation
+         * @returns {Object} - Object containing allocation and expectedReturn
+         */
+        function calculateOptimalAssetAllocation(assets) {
+            // Validate input
+            if (!Array.isArray(assets) || assets.length < 2) {
+                throw new Error('At least 2 assets are required');
+            }
+
+            // Calculate expected returns for each asset
+            const assetReturns = assets.map(asset => ({
+                name: asset.name,
+                expectedReturn: (asset.bestGrowth + asset.worstGrowth) / 2,
+                minWeight: asset.minWeight,
+                maxWeight: asset.maxWeight
+            }));
+
+            // Check if allocation is possible
+            const totalMinWeight = assetReturns.reduce((sum, asset) => sum + asset.minWeight, 0);
+            const totalMaxWeight = assetReturns.reduce((sum, asset) => sum + asset.maxWeight, 0);
+
+            if (totalMinWeight > 1) {
+                throw new Error('Minimum weights exceed 100% - allocation impossible');
+            }
+
+            if (totalMaxWeight < 1) {
+                throw new Error('Maximum weights sum to less than 100% - allocation impossible');
+            }
+
+            let bestAllocation = null;
+            let bestReturn = -Infinity;
+
+            // For 2 assets, we can optimize by varying the first asset's weight
+            const asset1 = assetReturns[0];
+            const asset2 = assetReturns[1];
+
+            // Test different weights for asset1 within its constraints
+            const stepSize = 0.01; // 1% increments
+            for (let weight1 = asset1.minWeight; weight1 <= asset1.maxWeight; weight1 += stepSize) {
+                const weight2 = 1 - weight1;
+
+                // Check if weight2 is within asset2's constraints
+                if (weight2 >= asset2.minWeight && weight2 <= asset2.maxWeight) {
+                    const portfolioReturn = weight1 * asset1.expectedReturn + weight2 * asset2.expectedReturn;
+
+                    if (portfolioReturn > bestReturn) {
+                        bestReturn = portfolioReturn;
+                        bestAllocation = {
+                            [asset1.name]: weight1,
+                            [asset2.name]: weight2
+                        };
+                    }
+                }
+            }
+
+            // If no valid allocation found, try boundary cases
+            if (!bestAllocation) {
+                // Try minimum weight for asset1
+                const weight1Min = asset1.minWeight;
+                const weight2Min = 1 - weight1Min;
+                if (weight2Min >= asset2.minWeight && weight2Min <= asset2.maxWeight) {
+                    bestAllocation = {
+                        [asset1.name]: weight1Min,
+                        [asset2.name]: weight2Min
+                    };
+                    bestReturn = weight1Min * asset1.expectedReturn + weight2Min * asset2.expectedReturn;
+                }
+                // Try maximum weight for asset1
+                else if (asset1.maxWeight + asset2.minWeight <= 1) {
+                    const weight1Max = asset1.maxWeight;
+                    const weight2Max = 1 - weight1Max;
+                    bestAllocation = {
+                        [asset1.name]: weight1Max,
+                        [asset2.name]: weight2Max
+                    };
+                    bestReturn = weight1Max * asset1.expectedReturn + weight2Max * asset2.expectedReturn;
+                }
+            }
+
+            if (!bestAllocation) {
+                throw new Error('No valid allocation found within constraints');
+            }
+
+            return {
+                allocation: bestAllocation,
+                expectedReturn: bestReturn
+            };
+        }
+
+        function calculateOptimalAllocation() {
+            try {
+                // Lấy dữ liệu đầu vào
+                const stockBest = parseFloat(document.getElementById('stock-best').value) / 100;
+                const stockWorst = parseFloat(document.getElementById('stock-worst').value) / 100;
+                const stockMin = parseFloat(document.getElementById('stock-min').value) / 100;
+                const stockMax = parseFloat(document.getElementById('stock-max').value) / 100;
+                
+                const cashBest = parseFloat(document.getElementById('cash-best').value) / 100;
+                const cashWorst = parseFloat(document.getElementById('cash-worst').value) / 100;
+                const cashMin = parseFloat(document.getElementById('cash-min').value) / 100;
+                const cashMax = parseFloat(document.getElementById('cash-max').value) / 100;
+                
+                const correlation = parseFloat(document.getElementById('stock-corr-cash').value);
+
+                // Tạo mảng assets theo format yêu cầu
+                const assets = [
+                    {
+                        name: "Cổ phiếu",
+                        bestGrowth: stockBest,
+                        worstGrowth: stockWorst,
+                        minWeight: stockMin,
+                        maxWeight: stockMax,
+                        correlation: { "Cổ phiếu": 1, "Tiền mặt": correlation }
+                    },
+                    {
+                        name: "Tiền mặt",
+                        bestGrowth: cashBest,
+                        worstGrowth: cashWorst,
+                        minWeight: cashMin,
+                        maxWeight: cashMax,
+                        correlation: { "Cổ phiếu": correlation, "Tiền mặt": 1 }
+                    }
+                ];
+
+                // Sử dụng function mới để tính toán
+                const result = calculateOptimalAssetAllocation(assets);
+                
+                // Tính toán các chỉ số bổ sung cho hiển thị
+                const stockWeight = result.allocation["Cổ phiếu"];
+                const cashWeight = result.allocation["Tiền mặt"];
+                
+                // Tính toán lợi nhuận kỳ vọng và độ lệch chuẩn cho risk calculation
+                const stockReturn = (stockBest + stockWorst) / 2;
+                const stockVolatility = (stockBest - stockWorst) / 4;
+                const cashReturn = (cashBest + cashWorst) / 2;
+                const cashVolatility = (cashBest - cashWorst) / 4;
+
+                // Tính portfolio risk và Sharpe ratio
+                const portfolioVariance = 
+                    Math.pow(stockWeight * stockVolatility, 2) + 
+                    Math.pow(cashWeight * cashVolatility, 2) + 
+                    2 * stockWeight * cashWeight * stockVolatility * cashVolatility * correlation;
+                const portfolioVolatility = Math.sqrt(portfolioVariance);
+                const sharpeRatio = portfolioVolatility > 0 ? result.expectedReturn / portfolioVolatility : 0;
+                
+                // Tính mức đa dạng hóa
+                const diversification = 1 - Math.pow(Math.abs(correlation), 2) * stockWeight * cashWeight * 4;
+
+                // Hiển thị kết quả
+                displayResults({
+                    stockWeight: stockWeight,
+                    cashWeight: cashWeight,
+                    expectedReturn: result.expectedReturn,
+                    risk: portfolioVolatility,
+                    sharpeRatio: sharpeRatio,
+                    diversification: diversification
+                });
+
+            } catch (error) {
+                alert('Lỗi tính toán: ' + error.message);
+                console.error('Calculation error:', error);
+            }
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            const allocationDisplay = document.getElementById('allocation-display');
+            
+            // Hiển thị phân bổ
+            allocationDisplay.innerHTML = `
+                <div class="allocation-item">
+                    <span><strong>📈 Cổ Phiếu</strong></span>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: ${results.stockWeight * 100}%"></div>
+                    </div>
+                    <span><strong>${(results.stockWeight * 100).toFixed(1)}%</strong></span>
+                </div>
+                <div class="allocation-item">
+                    <span><strong>💰 Tiền Mặt</strong></span>
+                    <div class="allocation-bar">
+                        <div class="allocation-fill" style="width: ${results.cashWeight * 100}%"></div>
+                    </div>
+                    <span><strong>${(results.cashWeight * 100).toFixed(1)}%</strong></span>
+                </div>
+            `;
+            
+            // Cập nhật các chỉ số
+            document.getElementById('expected-return').textContent = (results.expectedReturn * 100).toFixed(2);
+            document.getElementById('portfolio-risk').textContent = (results.risk * 100).toFixed(2);
+            document.getElementById('sharpe-ratio').textContent = results.sharpeRatio.toFixed(3);
+            document.getElementById('diversification').textContent = (results.diversification * 100).toFixed(1) + '%';
+            
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Khởi tạo ma trận tương quan
+        updateCorrelationMatrix();
+    </script>
+</body>
+</html>
