@@ -421,6 +421,34 @@
         document.getElementById('stock-corr-cash').addEventListener('input', updateCorrelationMatrix);
         document.getElementById('cash-corr-stock').addEventListener('input', updateCorrelationMatrix);
 
+        // Tự động cập nhật cash-min khi stock-max thay đổi
+        document.getElementById('stock-max').addEventListener('input', function() {
+            const stockMax = parseFloat(this.value) || 0;
+            const cashMin = 100 - stockMax;
+            document.getElementById('cash-min').value = cashMin;
+        });
+
+        // Tự động cập nhật cash-max khi stock-min thay đổi
+        document.getElementById('stock-min').addEventListener('input', function() {
+            const stockMin = parseFloat(this.value) || 0;
+            const cashMax = 100 - stockMin;
+            document.getElementById('cash-max').value = cashMax;
+        });
+
+        // Tự động cập nhật stock-max khi cash-min thay đổi
+        document.getElementById('cash-min').addEventListener('input', function() {
+            const cashMin = parseFloat(this.value) || 0;
+            const stockMax = 100 - cashMin;
+            document.getElementById('stock-max').value = stockMax;
+        });
+
+        // Tự động cập nhật stock-min khi cash-max thay đổi
+        document.getElementById('cash-max').addEventListener('input', function() {
+            const cashMax = parseFloat(this.value) || 0;
+            const stockMin = 100 - cashMax;
+            document.getElementById('stock-min').value = stockMin;
+        });
+
         /**
          * Calculates optimal asset allocation to maximize expected return
          * @param {Array} assets - Array of asset objects with name, bestGrowth, worstGrowth, minWeight, maxWeight, correlation
